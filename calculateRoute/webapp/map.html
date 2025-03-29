@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Route Planner</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map { height: 400px; width: 100%; }
+    </style>
+</head>
+<body>
+    <h1>Route Planner</h1>
+    <form id="routeForm">
+        <!-- Form fields for input -->
+        <input type="text" name="startISRS" placeholder="Start ISRS" required>
+        <input type="text" name="endISRS" placeholder="End ISRS" required>
+        <input type="number" name="draught" placeholder="Draught (cm)">
+        <input type="number" name="height" placeholder="Height (cm)">
+        <input type="number" name="length" placeholder="Length (cm)">
+        <input type="number" name="width" placeholder="Width (cm)">
+        <button type="submit">Calculate Route</button>
+    </form>
+<div id="map" style="height: 400px;"></div>
+<div id="itineraryDetails" style="margin-top: 20px;">
+    <h5>Itinerary Details</h5>
+    <div id="message"></div>
+    <div id="totalLength"></div>
+    <div id="totalDuration"></div>
+    <div id="tideDependent"></div>
+    <div id="numberOfLocks"></div>
+    <h5>Permissible Dimensions</h5>
+    <div id="dimensions"></div>
+</div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+
+    const map = L.map('map').setView([51.505, -0.09], 13);  // Example initial position, adjust as needed
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    const startIcon = L.icon({
+        iconUrl: 'https://img.icons8.com/?size=100&id=10664&format=png&color=000000', // URL to the start icon image
+        iconSize: [30, 30],  // Keeping the icon size square
+        iconAnchor: [15, 30], // Center of the bottom edge of the icon
+        popupAnchor: [0, -30]
+    });
+    const endIcon = L.icon({
+    iconUrl: 'https://img.icons8.com/?size=100&id=9811&format=png&color=000000', // URL to the end icon image
+        iconSize: [30, 30],
+    iconAnchor: [15, 30], // Center of the bottom edge of the icon
+    popupAnchor: [0, -30] // Making the popup appear above the icon
+    });
+
+    const eventIcons = {
+    "Bridge": L.icon({
+        iconUrl: 'https://img.icons8.com/?size=100&id=5033&format=png&color=000000',  // Placeholder URL, replace with actual
+        iconSize: [18, 18],
+        iconAnchor: [12, 12],
+        popupAnchor: [0, -12]
+    }),
+    "Lock": L.icon({
+        iconUrl: 'https://img.icons8.com/?size=100&id=15437&format=png&color=000000',  // Placeholder URL, replace with actual
+        iconSize: [18, 18],
+        iconAnchor: [12, 12],
+        popupAnchor: [0, -12]
+    }),
+    "Rdocal": L.icon({
+        iconUrl: 'https://img.icons8.com/?size=100&id=86674&format=png&color=000000',  // Placeholder URL, replace with actual
+        iconSize: [18, 18],
+        iconAnchor: [12, 12],
+        popupAnchor: [0, -12]
+    }),
+    "Vpln": L.icon({
+        iconUrl: 'https://img.icons8.com/?size=100&id=3485&format=png&color=000000',  // Placeholder URL, replace with actual
+        iconSize: [18, 18],
+        iconAnchor: [12, 12],
+        popupAnchor: [0, -12]
+    })}
+
+    const keyMap = {
+    "Comcha": "Communication Channel VHF",
+    "Rdocal": "Radio Call",
+    "AirDraught": "Air Draught Height",
+    "AirDraughtClosed": "Closed Air Draught Height",
+    "AirDraughtSource": "Source of Air Draught",
+    "AirDraughtClosedSource": "Source of Closed Air Draught",
+    "Operatable": "Bridge Status",
+    "ClearanceWidth": "Clearance Width",
+    "AllowedWidth": "Allowed Width"
+};
+
+    document.getElementById('routeForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        fetch('/calculate-route', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Confirming the receipt of data
+            console.log("Received data:", data);
+
+            // Clearing previous markers and layers if needed
+            map.eachLayer(function(layer) {
+                if (!!layer.toGeoJSON) {
+                    map.removeLayer(layer);
+                }
+            });
+
+            // Plot the route polyline, if geometry data is available
+            if (data.geometry && data.geometry.length > 0) {
+                const latlngs = data.geometry.map(point => [point.lat, point.lon]);
+                const polyline = L.polyline(latlngs, {color: 'blue'}).addTo(map);
+                map.fitBounds(polyline.getBounds());
+                L.marker([data.geometry[0].lat, data.geometry[0].lon], {icon: startIcon}).addTo(map).bindPopup(`Start: ${data.fromObjectName}`);
+                L.marker([data.geometry[data.geometry.length - 1].lat, data.geometry[data.geometry.length - 1].lon]).addTo(map).bindPopup(`End: ${data.toObjectName}`);
+            }
+
+            // Plot markers for each event
+            data.events.forEach(event => {
+
+                const propertiesHtml = event.properties ? formatEventProperties(event.properties) : '';
+
+                const icon = eventIcons[event.type] || L.icon({ // Default icon if type is not in eventIcons
+                iconUrl: 'https://img.icons8.com/default-icon.png',
+                iconSize: [18, 18],
+                iconAnchor: [10, 10],
+                popupAnchor: [0, -10]
+            });
+                const marker = L.marker([event.lng, event.lat], {icon: icon}).addTo(map); // Ensure latitude and longitude are in correct order
+                marker.bindPopup(`<b>${event.type}: ${event.name}</b>${propertiesHtml}`);
+            });
+        displayRouteDetails(data);
+
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+
+    function formatEventProperties(properties) {
+        let formattedPropertiesHtml = '<ul>';
+        for (const [key, value] of Object.entries(properties)) {
+            let formattedValue = value;
+            let displayName = keyMap[key] || key; // Correct placement
+
+            if (["AirDraught", "AirDraughtClosed", "ClearanceWidth", "AllowedWidth"].includes(key) && value) {
+                formattedValue = (parseFloat(value) / 100).toFixed(2) + ' m';
+            }
+
+            if (key === "Operatable") {
+                formattedValue = value === "1" ? "Movable" : "Fixed";
+            }
+
+            if (key === "Comcha") {
+                formattedValue = value;
+            }
+
+            formattedPropertiesHtml += `<li>${displayName}: ${formattedValue}</li>`;
+        }
+        formattedPropertiesHtml += '</ul>';
+        return formattedPropertiesHtml;
+    }
+
+     function displayRouteDetails(data) {
+        data.legs.forEach(leg => {
+            document.getElementById('message').textContent = `Route: ${leg.message}`;
+            });
+        document.getElementById('totalLength').textContent = `Total Length: ${data.totalLengthKm} km`;
+        document.getElementById('totalDuration').textContent = `Total Duration: ${data.totalDuration}`;
+        document.getElementById('tideDependent').textContent = `Tide Dependent: ${data.tideDependent}`;
+        document.getElementById('numberOfLocks').textContent = `Number of Locks: ${data.numberOfLocks}`;
+        document.getElementById('dimensions').innerHTML = `
+            Height: ${data.dimensions.Height}<br>
+            Width: ${data.dimensions.Width}<br>
+            Draught: ${data.dimensions.Draught}<br>
+            Length: ${data.dimensions.Length}<br>
+            Lowest CEMT class: ${data.dimensions.CEMT}
+        `;
+    }
+
+</script>
+</body>
+</html>
