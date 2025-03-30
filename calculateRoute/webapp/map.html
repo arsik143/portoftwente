@@ -20,10 +20,14 @@
         <input type="number" name="width" placeholder="Width (cm)">
         <button type="submit">Calculate Route</button>
     </form>
+
+    <button id="calculateShortest" disabled></button>
 <div id="map" style="height: 400px;"></div>
+
 <div id="itineraryDetails" style="margin-top: 20px;">
     <h5>Itinerary Details</h5>
     <div id="message"></div>
+    <div id="computationType"></div>
     <div id="totalLength"></div>
     <div id="totalDuration"></div>
     <div id="tideDependent"></div>
@@ -35,7 +39,7 @@
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
 
-    const map = L.map('map').setView([51.505, -0.09], 13);  // Example initial position, adjust as needed
+    const map = L.map('map').setView([52.24061395322131, 6.850473523711784], 13);  // Example initial position, adjust as needed
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '© OpenStreetMap'
@@ -91,10 +95,19 @@
     "ClearanceWidth": "Clearance Width",
     "AllowedWidth": "Allowed Width"
 };
-
     document.getElementById('routeForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        const formData = new FormData(this);
+        fetchRoute("FASTEST");
+    });
+
+    document.getElementById('calculateShortest').addEventListener('click', function() {
+        fetchRoute("SHORTEST");
+    });
+
+    function fetchRoute(routeType) {
+        const formData = new FormData(document.getElementById('routeForm'));
+        formData.append('computationType', routeType);
+        formData.append('computationType', routeType);  // Add route type to form data
         fetch('/calculate-route', {
             method: 'POST',
             body: formData
@@ -103,7 +116,14 @@
         .then(data => {
             // Confirming the receipt of data
             console.log("Received data:", data);
+            displayRouteDetails(data);
+            displayMapData(data, map)
 
+            if (routeType === "FASTEST") {
+                // Update shortest route button with length and duration
+                document.getElementById('calculateShortest').textContent = `Alternative Route`;
+                document.getElementById('calculateShortest').disabled = false;
+            }
             // Clearing previous markers and layers if needed
             map.eachLayer(function(layer) {
                 if (!!layer.toGeoJSON) {
@@ -134,13 +154,12 @@
                 const marker = L.marker([event.lng, event.lat], {icon: icon}).addTo(map); // Ensure latitude and longitude are in correct order
                 marker.bindPopup(`<b>${event.type}: ${event.name}</b>${propertiesHtml}`);
             });
-        displayRouteDetails(data);
-
         })
         .catch(error => {
             console.error('Error:', error);
         });
-    });
+    }
+
 
     function formatEventProperties(properties) {
         let formattedPropertiesHtml = '<ul>';
@@ -170,6 +189,7 @@
         data.legs.forEach(leg => {
             document.getElementById('message').textContent = `Route: ${leg.message}`;
             });
+        document.getElementById('computationType').textContent = `${data.computationType} route`;
         document.getElementById('totalLength').textContent = `Total Length: ${data.totalLengthKm} km`;
         document.getElementById('totalDuration').textContent = `Total Duration: ${data.totalDuration}`;
         document.getElementById('tideDependent').textContent = `Tide Dependent: ${data.tideDependent}`;
@@ -181,6 +201,14 @@
             Length: ${data.dimensions.Length}<br>
             Lowest CEMT class: ${data.dimensions.CEMT}
         `;
+    }
+
+    function displayMapData(data, map) {
+        map.eachLayer(layer => {
+            if (layer instanceof L.Marker || layer instanceof L.Polyline) {
+                map.removeLayer(layer);
+            }
+        });
     }
 
 </script>

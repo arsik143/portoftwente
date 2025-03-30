@@ -15,6 +15,7 @@ def calculate_route():
     # Extract parameters from received form data
     start_isrs = request.form.get('startISRS')
     end_isrs = request.form.get('endISRS')
+    computation_type = request.form.get('computationType', 'FASTEST')  # Default to FASTEST
     draught = request.form.get('draught', 0)
     height = request.form.get('height', 0)
     length = request.form.get('length', 0)
@@ -36,7 +37,7 @@ def calculate_route():
         },
         'calculationOptions': {
             'useReducedDimensions': False,
-            'computationType': 'FASTEST'
+            'computationType': computation_type
         },
         'viaPoints': [
             {'iSRS': start_isrs}, {'iSRS': end_isrs}
@@ -91,9 +92,10 @@ def calculate_route():
         'toObjectName': to_object_name,
         'events': events,
         'legs': legs,
-        'tideDependent': "Tide Dependent" if itinerary['TideDependent'] else "Not Dependent",
+        'tideDependent': "Yes" if itinerary['TideDependent'] else "Not Dependent",
         'numberOfLocks': itinerary['NumberOfLocks'],
-        'dimensions': format_dimensions(itinerary['AllowedDimensions'])
+        'dimensions': format_dimensions(itinerary['AllowedDimensions']),
+        'computationType': data['Itineraries'][0].get('ComputationType', 'Unknown')
     }
     print("Events data to be sent to frontend:", response_data['events'])
 
