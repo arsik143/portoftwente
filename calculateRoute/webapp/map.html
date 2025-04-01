@@ -9,13 +9,31 @@
 <body>
     <h1>Route Planner</h1>
     <form id="routeForm">
-        <input type="text" name="startISRS" placeholder="Start ISRS" required>
-        <input type="text" name="endISRS" placeholder="End ISRS" required>
-        <input type="number" name="draught" placeholder="Draught (cm)">
-        <input type="number" name="height" placeholder="Height (cm)">
-        <input type="number" name="length" placeholder="Length (cm)">
-        <input type="number" name="width" placeholder="Width (cm)">
-        <button type="submit">Calculate Route</button>
+        <div class="form-group">
+            <input type="text" name="startISRS" id="startISRS" required>
+            <label for="startISRS">Start ISRS</label>
+        </div>
+        <div class="form-group">
+            <input type="text" name="endISRS" id="endISRS" required>
+            <label for="endISRS">End ISRS</label>
+        </div>
+        <div class="form-group">
+            <input type="number" name="draught" id="draught">
+            <label for="draught">Draught (cm)</label>
+        </div>
+        <div class="form-group">
+            <input type="number" name="height" id="height">
+            <label for="height">Height (cm)</label>
+        </div>
+        <div class="form-group">
+            <input type="number" name="length" id="length">
+            <label for="length">Length (cm)</label>
+        </div>
+        <div class="form-group">
+            <input type="number" name="width" id="width">
+            <label for="width">Width (cm)</label>
+        </div>
+        <button type="submit" id="calculateBtn">Calculate Route</button>
     </form>
 
     <button id="calculateShortest" disabled></button>

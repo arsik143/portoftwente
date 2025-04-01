@@ -1,6 +1,6 @@
 /* General styles */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Arial', sans-serif;
     margin: 0;
     padding: 20px;
     background-color: #f4f6f8;
@@ -9,95 +9,153 @@ body {
 
 h1 {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
+    color: #2c3e50;
+    font-size: 2.2em;
 }
 
-form#routeForm {
+/* Form styling */
+#routeForm {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 15px;
     justify-content: center;
     background-color: #fff;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    margin-bottom: 15px;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+    margin: 0 auto 20px;
+    max-width: 800px;
 }
 
-form#routeForm input {
-    padding: 10px;
+.form-group {
+    display: flex;
+    flex-direction: column;
+    width: 120px;
+}
+
+#routeForm input {
+    padding: 8px 10px;
     font-size: 14px;
-    border: 1px solid #ccc;
+    border: 1px solid #e0e0e0;
     border-radius: 5px;
-    width: 150px;
-}
-
-form#routeForm button {
-    padding: 10px 15px;
-    font-size: 14px;
-    background-color: #007bff;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-form#routeForm button:hover {
-    background-color: #0056b3;
-}
-
-#calculateShortest {
-    display: block;
-    margin: 10px auto;
-    padding: 10px 20px;
-    background-color: #28a745;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    display: none;
-}
-
-#calculateShortest:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-}
-
-#map {
-    height: 400px;
     width: 100%;
-    margin-bottom: 20px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+}
+
+#routeForm input:focus {
+    border-color: #3498db;
+    outline: none;
+}
+
+#routeForm label {
+    font-size: 0.75em;
+    color: #7f8c8d;
+    margin-top: 5px;
+    padding-left: 3px;
+    font-weight: 500;
+}
+
+#calculateBtn {
+    width: 100%;
+    padding: 12px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    margin-top: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#calculateBtn:hover {
+    background-color: #2980b9;
+    transform: translateY(-1px);
+}
+
+/* Map styling */
+#map {
+    height: 500px;
+    width: 100%;
+    margin-bottom: 25px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 /* Itinerary Section */
 #itineraryDetails {
     background-color: #fff;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.1);
     max-width: 800px;
-    margin: 0 auto;
+    margin: 20px auto;
+    line-height: 1.6;
 }
 
 #itineraryDetails h5 {
-    margin-top: 0;
-    color: #007bff;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 5px;
-}
-
-#itineraryDetails div {
-    margin: 8px 0;
+    margin: 0 0 18px 0;
+    color: #3498db;
+    font-size: 1.2em;
+    font-weight: 600;
 }
 
 #dimensions {
     background-color: #f8f9fa;
-    padding: 10px;
+    padding: 15px;
+    border-radius: 6px;
+    margin-top: 15px;
+    font-size: 0.95em;
+}
+
+/* Alternative route button */
+#calculateShortest {
+    display: block;
+    width: 220px;
+    padding: 12px;
+    margin: 20px auto;
+    background-color: #27ae60;
+    color: white;
+    border: none;
     border-radius: 5px;
-    line-height: 1.6;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#calculateShortest:hover {
+    background-color: #219a52;
+    transform: translateY(-1px);
+}
+
+#calculateShortest:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+    transform: none;
+    display: none;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    #routeForm {
+        padding: 15px;
+        gap: 12px;
+    }
+    
+    .form-group {
+        width: 100%;
+        max-width: 200px;
+    }
+    
+    #calculateBtn {
+        margin-top: 10px;
+    }
 }
