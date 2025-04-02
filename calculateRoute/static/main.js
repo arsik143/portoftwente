@@ -19,11 +19,12 @@ window.addEventListener('load', () => {
     if (saved) {
         const data = JSON.parse(saved);
         for (let key in data) {
-            const input = document.querySelector(`[name="${key}"]`);
+            const input = document.querySelector(`[name="${key}"], #${key}`);
             if (input) input.value = data[key];
         }
     }
 });
+
 
 // === Leaflet Map Setup ===
 const map = L.map('map').setView([52.24, 6.85], 13);
@@ -88,8 +89,14 @@ const keyMap = {
 // === Form Submission Handler ===
 document.getElementById('routeForm').addEventListener('submit', function (e) {
     e.preventDefault();
+
     const formData = new FormData(e.target);
     const plainObject = Object.fromEntries(formData.entries());
+
+    // Save label inputs manually too
+    plainObject["startISRS_label"] = document.getElementById("startISRS_label").value;
+    plainObject["endISRS_label"] = document.getElementById("endISRS_label").value;
+
     setCookie("routeFormData", JSON.stringify(plainObject), 7);
     fetchRoute("FASTEST");
 });
@@ -247,51 +254,56 @@ fetch("/static/ports_list.json")
   .then(res => res.json())
   .then(data => {
     locodeData = data;
-    setupAutocomplete("startISRS", "startSuggestions");
-    setupAutocomplete("endISRS", "endSuggestions");
+    setupAutocomplete("startISRS_label", "startSuggestions", "startISRS");
+    setupAutocomplete("endISRS_label", "endSuggestions", "endISRS");
+
   });
 
-function setupAutocomplete(inputId, suggestionsId) {
-  const input = document.getElementById(inputId);
-  const suggestionsBox = document.getElementById(suggestionsId);
-
-  input.addEventListener("input", () => {
-    const query = input.value.toLowerCase();
-    suggestionsBox.innerHTML = "";
-
-    if (!query) {
-      suggestionsBox.style.display = "none";
-      return;
-    }
-
-    const matches = locodeData.filter(item =>
-      (item.loname && item.loname.toLowerCase().includes(query)) ||
-      (item.objectname && item.objectname.toLowerCase().includes(query))
-    );
-
-    if (matches.length === 0) {
-      suggestionsBox.style.display = "none";
-      return;
-    }
-
-    matches.slice(0, 10).forEach(match => {
-      const div = document.createElement("div");
-      div.textContent = `${match.loname || ''} (${match.objectname || ''})`;
-      div.addEventListener("click", () => {
-        input.value = match.locode; // or use match.loname or objectname if needed
+  function setupAutocomplete(labelInputId, suggestionsId, hiddenInputId) {
+    const labelInput = document.getElementById(labelInputId);
+    const suggestionsBox = document.getElementById(suggestionsId);
+    const hiddenInput = document.getElementById(hiddenInputId);
+  
+    labelInput.addEventListener("input", () => {
+      const query = labelInput.value.toLowerCase();
+      suggestionsBox.innerHTML = "";
+  
+      if (!query) {
+        suggestionsBox.style.display = "none";
+        hiddenInput.value = ""; // clear selected locode
+        return;
+      }
+  
+      const matches = locodeData.filter(item =>
+        (item.loname && item.loname.toLowerCase().includes(query)) ||
+        (item.objectname && item.objectname.toLowerCase().includes(query))
+      );
+  
+      if (matches.length === 0) {
+        suggestionsBox.style.display = "none";
+        return;
+      }
+  
+      matches.slice(0, 10).forEach(match => {
+        const div = document.createElement("div");
+        div.textContent = `${match.loname || ''} (${match.objectname || ''})`;
+        div.addEventListener("click", () => {
+          labelInput.value = `${match.loname || ''} (${match.objectname || ''})`;
+          hiddenInput.value = match.locode; // ✅ locode stored here for API call
+          suggestionsBox.innerHTML = "";
+          suggestionsBox.style.display = "none";
+        });
+        suggestionsBox.appendChild(div);
+      });
+  
+      suggestionsBox.style.display = "block";
+    });
+  
+    document.addEventListener("click", (e) => {
+      if (!suggestionsBox.contains(e.target) && e.target !== labelInput) {
         suggestionsBox.innerHTML = "";
         suggestionsBox.style.display = "none";
-      });
-      suggestionsBox.appendChild(div);
+      }
     });
-
-    suggestionsBox.style.display = "block";
-  });
-
-  document.addEventListener("click", (e) => {
-    if (!suggestionsBox.contains(e.target) && e.target !== input) {
-      suggestionsBox.innerHTML = "";
-      suggestionsBox.style.display = "none";
-    }
-  });
-}
+  }
+  
