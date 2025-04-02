@@ -197,3 +197,72 @@ h1 {
     font-size: 14px;
     color: #555;
 }
+/* Container styling */
+.info-container {
+    max-width: 700px;
+    margin: 40px auto;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.info-card h5 {
+    margin-top: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 4px;
+}
+
+/* Label + value pair layout */
+.info-pair {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+    font-size: 15px;
+}
+
+.label {
+    color: #555;
+    font-weight: 600;
+    flex: 1;
+}
+
+.value {
+    color: #222;
+    font-weight: 600;
+    text-align: right;
+    flex: 1;
+}
+
+.popup {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #f44336;
+    color: white;
+    padding: 16px 28px;
+    border-radius: 8px;
+    font-size: 16px;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.popup.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+}
+
+.popup.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-50%) translateY(-10px);
+}

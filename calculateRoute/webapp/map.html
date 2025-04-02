@@ -5,10 +5,10 @@
     <title>Route Planner</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-
 </head>
 <body>
     <h1>Route Planner</h1>
+
     <form id="routeForm">
         <div class="form-group">
             <input type="text" name="startISRS" id="startISRS" required>
@@ -38,212 +38,33 @@
     </form>
 
     <button id="calculateShortest" disabled></button>
-    <div id="map" style="height: 400px;"></div>
 
-    <div id="itineraryDetails" style="margin-top: 20px;">
-        <h5>Itinerary Details</h5>
-        <div id="message"></div>
-        <div id="computationType"></div>
-        <div id="totalLength"></div>
-        <div id="totalDuration"></div>
-        <div id="tideDependent"></div>
-        <div id="numberOfLocks"></div>
-        <h5>Permissible Dimensions</h5>
-        <div id="dimensions"></div>
-    </div>
+    <div id="map" style="height: 400px;"></div>
+    <div id="dimensionError" class="popup hidden"></div>
+
+    <div id="itineraryDetails" class="info-container">
+        <div class="info-card">
+          <h5>Itinerary Details</h5>
+          <div class="info-pair"><span class="label">Route</span><span class="value" id="message"></span></div>
+          <div class="info-pair"><span class="label">Type</span><span class="value" id="computationType"></span></div>
+          <div class="info-pair"><span class="label">Total Length</span><span class="value" id="totalLength"></span></div>
+          <div class="info-pair"><span class="label">Total Duration</span><span class="value" id="totalDuration"></span></div>
+          <div class="info-pair"><span class="label">Tide Dependent</span><span class="value" id="tideDependent"></span></div>
+          <div class="info-pair"><span class="label">Locks</span><span class="value" id="numberOfLocks"></span></div>
+        </div>
+      
+        <div class="info-card">
+          <h5>Permissible Dimensions</h5>
+          <div class="info-pair"><span class="label">Height</span><span class="value" id="dimHeight"></span></div>
+          <div class="info-pair"><span class="label">Width</span><span class="value" id="dimWidth"></span></div>
+          <div class="info-pair"><span class="label">Draught</span><span class="value" id="dimDraught"></span></div>
+          <div class="info-pair"><span class="label">Length</span><span class="value" id="dimLength"></span></div>
+          <div class="info-pair"><span class="label">CEMT Class</span><span class="value" id="dimCEMT"></span></div>
+        </div>
+      </div>
+      
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script>
-        // Cookie helper functions
-        function setCookie(name, value, days) {
-            const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
-            document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
-        }
-
-        function getCookie(name) {
-            const cookieArr = document.cookie.split("; ");
-            for (let cookie of cookieArr) {
-                const [key, val] = cookie.split("=");
-                if (key === name) return decodeURIComponent(val);
-            }
-            return null;
-        }
-
-        // Load saved form data
-        window.addEventListener('load', () => {
-            const saved = getCookie("routeFormData");
-            if (saved) {
-                const data = JSON.parse(saved);
-                for (let key in data) {
-                    const input = document.querySelector(`[name="${key}"]`);
-                    if (input) input.value = data[key];
-                }
-            }
-        });
-
-        // Leaflet map setup
-        const map = L.map('map').setView([52.24061395322131, 6.850473523711784], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap'
-        }).addTo(map);
-
-        const startIcon = L.icon({
-            iconUrl: 'https://img.icons8.com/?size=100&id=10664&format=png&color=000000',
-            iconSize: [30, 30],
-            iconAnchor: [15, 30],
-            popupAnchor: [0, -30]
-        });
-
-        const endIcon = L.icon({
-            iconUrl: 'https://img.icons8.com/?size=100&id=9811&format=png&color=000000',
-            iconSize: [30, 30],
-            iconAnchor: [15, 30],
-            popupAnchor: [0, -30]
-        });
-
-        const eventIcons = {
-            "Bridge": L.icon({
-                iconUrl: 'https://img.icons8.com/?size=100&id=5033&format=png&color=000000',
-                iconSize: [18, 18],
-                iconAnchor: [12, 12],
-                popupAnchor: [0, -12]
-            }),
-            "Lock": L.icon({
-                iconUrl: 'https://img.icons8.com/?size=100&id=15437&format=png&color=000000',
-                iconSize: [18, 18],
-                iconAnchor: [12, 12],
-                popupAnchor: [0, -12]
-            }),
-            "Rdocal": L.icon({
-                iconUrl: 'https://img.icons8.com/?size=100&id=86674&format=png&color=000000',
-                iconSize: [18, 18],
-                iconAnchor: [12, 12],
-                popupAnchor: [0, -12]
-            }),
-            "Vpln": L.icon({
-                iconUrl: 'https://img.icons8.com/?size=100&id=3485&format=png&color=000000',
-                iconSize: [18, 18],
-                iconAnchor: [12, 12],
-                popupAnchor: [0, -12]
-            })
-        };
-
-        const keyMap = {
-            "Comcha": "Communication Channel VHF",
-            "Rdocal": "Radio Call",
-            "AirDraught": "Air Draught Height",
-            "AirDraughtClosed": "Closed Air Draught Height",
-            "AirDraughtSource": "Source of Air Draught",
-            "AirDraughtClosedSource": "Source of Closed Air Draught",
-            "Operatable": "Bridge Status",
-            "ClearanceWidth": "Clearance Width",
-            "AllowedWidth": "Allowed Width"
-        };
-
-        document.getElementById('routeForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(document.getElementById('routeForm'));
-            const plainObject = Object.fromEntries(formData.entries());
-            setCookie("routeFormData", JSON.stringify(plainObject), 7);  // Save data to cookie
-            fetchRoute("FASTEST");
-        });
-
-        document.getElementById('calculateShortest').addEventListener('click', function() {
-            fetchRoute("SHORTEST");
-        });
-
-        function fetchRoute(routeType) {
-            const formData = new FormData(document.getElementById('routeForm'));
-            formData.append('computationType', routeType);
-            fetch('/calculate-route', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log("Received data:", data);
-                displayRouteDetails(data);
-                displayMapData(data, map);
-
-                if (routeType === "FASTEST") {
-                    document.getElementById('calculateShortest').textContent = `Shortest Route`;
-                    document.getElementById('calculateShortest').disabled = false;
-                }
-
-                map.eachLayer(function(layer) {
-                    if (!!layer.toGeoJSON) {
-                        map.removeLayer(layer);
-                    }
-                });
-
-                if (data.geometry && data.geometry.length > 0) {
-                    const latlngs = data.geometry.map(point => [point.lat, point.lon]);
-                    const polyline = L.polyline(latlngs, { color: 'blue' }).addTo(map);
-                    map.fitBounds(polyline.getBounds());
-                    L.marker([data.geometry[0].lat, data.geometry[0].lon], { icon: startIcon }).addTo(map).bindPopup(`Start: ${data.fromObjectName}`);
-                    L.marker([data.geometry[data.geometry.length - 1].lat, data.geometry[data.geometry.length - 1].lon], { icon: endIcon }).addTo(map).bindPopup(`End: ${data.toObjectName}`);
-                }
-
-                data.events.forEach(event => {
-                    const propertiesHtml = event.properties ? formatEventProperties(event.properties) : '';
-                    const icon = eventIcons[event.type] || L.icon({
-                        iconUrl: 'https://img.icons8.com/default-icon.png',
-                        iconSize: [18, 18],
-                        iconAnchor: [10, 10],
-                        popupAnchor: [0, -10]
-                    });
-                    const marker = L.marker([event.lng, event.lat], { icon: icon }).addTo(map);
-                    marker.bindPopup(`<b>${event.type}: ${event.name}</b>${propertiesHtml}`);
-                });
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        }
-
-        function formatEventProperties(properties) {
-            let formattedPropertiesHtml = '<ul>';
-            for (const [key, value] of Object.entries(properties)) {
-                let formattedValue = value;
-                let displayName = keyMap[key] || key;
-                if (["AirDraught", "AirDraughtClosed", "ClearanceWidth", "AllowedWidth"].includes(key) && value) {
-                    formattedValue = (parseFloat(value) / 100).toFixed(2) + ' m';
-                }
-                if (key === "Operatable") {
-                    formattedValue = value === "1" ? "Movable" : "Fixed";
-                }
-                formattedPropertiesHtml += `<li>${displayName}: ${formattedValue}</li>`;
-            }
-            formattedPropertiesHtml += '</ul>';
-            return formattedPropertiesHtml;
-        }
-
-        function displayRouteDetails(data) {
-            data.legs.forEach(leg => {
-                document.getElementById('message').textContent = `Route: ${leg.message}`;
-            });
-            document.getElementById('computationType').textContent = `${data.computationType} route`;
-            document.getElementById('totalLength').textContent = `Total Length: ${data.totalLengthKm} km`;
-            document.getElementById('totalDuration').textContent = `Total Duration: ${data.totalDuration}`;
-            document.getElementById('tideDependent').textContent = `Tide Dependent: ${data.tideDependent}`;
-            document.getElementById('numberOfLocks').textContent = `Number of Locks: ${data.numberOfLocks}`;
-            document.getElementById('dimensions').innerHTML = `
-                Height: ${data.dimensions.Height}<br>
-                Width: ${data.dimensions.Width}<br>
-                Draught: ${data.dimensions.Draught}<br>
-                Length: ${data.dimensions.Length}<br>
-                Lowest CEMT class: ${data.dimensions.CEMT}
-            `;
-        }
-
-        function displayMapData(data, map) {
-            map.eachLayer(layer => {
-                if (layer instanceof L.Marker || layer instanceof L.Polyline) {
-                    map.removeLayer(layer);
-                }
-            });
-        }
-    </script>
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
 </html>
