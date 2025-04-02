@@ -240,3 +240,58 @@ function showErrorPopup(message) {
         }, 400); // match CSS transition duration
     }, 5000);
 }
+
+let locodeData = [];
+
+fetch("/static/ports_list.json")
+  .then(res => res.json())
+  .then(data => {
+    locodeData = data;
+    setupAutocomplete("startISRS", "startSuggestions");
+    setupAutocomplete("endISRS", "endSuggestions");
+  });
+
+function setupAutocomplete(inputId, suggestionsId) {
+  const input = document.getElementById(inputId);
+  const suggestionsBox = document.getElementById(suggestionsId);
+
+  input.addEventListener("input", () => {
+    const query = input.value.toLowerCase();
+    suggestionsBox.innerHTML = "";
+
+    if (!query) {
+      suggestionsBox.style.display = "none";
+      return;
+    }
+
+    const matches = locodeData.filter(item =>
+      (item.loname && item.loname.toLowerCase().includes(query)) ||
+      (item.objectname && item.objectname.toLowerCase().includes(query))
+    );
+
+    if (matches.length === 0) {
+      suggestionsBox.style.display = "none";
+      return;
+    }
+
+    matches.slice(0, 10).forEach(match => {
+      const div = document.createElement("div");
+      div.textContent = `${match.loname || ''} (${match.objectname || ''})`;
+      div.addEventListener("click", () => {
+        input.value = match.locode; // or use match.loname or objectname if needed
+        suggestionsBox.innerHTML = "";
+        suggestionsBox.style.display = "none";
+      });
+      suggestionsBox.appendChild(div);
+    });
+
+    suggestionsBox.style.display = "block";
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!suggestionsBox.contains(e.target) && e.target !== input) {
+      suggestionsBox.innerHTML = "";
+      suggestionsBox.style.display = "none";
+    }
+  });
+}

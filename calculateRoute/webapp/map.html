@@ -10,14 +10,17 @@
     <h1>Route Planner</h1>
 
     <form id="routeForm">
-        <div class="form-group">
-            <input type="text" name="startISRS" id="startISRS" required>
-            <label for="startISRS">Start ISRS</label>
-        </div>
-        <div class="form-group">
-            <input type="text" name="endISRS" id="endISRS" required>
-            <label for="endISRS">End ISRS</label>
-        </div>
+        <div class="form-group autocomplete">
+            <input type="text" id="startISRS" name="startISRS" placeholder="Start ISRS" required autocomplete="off">
+            <label for="draught">Starting Point</label>
+            <div class="suggestions" id="startSuggestions"></div>
+          </div>
+          
+          <div class="form-group autocomplete">
+            <input type="text" id="endISRS" name="endISRS" placeholder="End ISRS" required autocomplete="off">
+            <label for="draught">Ending Point</label>
+            <div class="suggestions" id="endSuggestions"></div>
+          </div>          
         <div class="form-group">
             <input type="number" name="draught" id="draught">
             <label for="draught">Draught (cm)</label>

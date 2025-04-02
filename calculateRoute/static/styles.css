@@ -266,3 +266,32 @@ h1 {
     pointer-events: none;
     transform: translateX(-50%) translateY(-10px);
 }
+
+.autocomplete {
+    position: relative;
+  }
+  
+  .suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 180px;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #ccc;
+    border-top: none;
+    z-index: 10;
+    display: none;
+    font-size: 14px;
+  }
+  
+  .suggestions div {
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+  
+  .suggestions div:hover {
+    background-color: #f0f0f0;
+  }
+  
