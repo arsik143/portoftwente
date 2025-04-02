@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <title>Route Planner</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
 </head>
 <body>
     <h1>Route Planner</h1>
@@ -166,7 +167,7 @@
                 displayMapData(data, map);
 
                 if (routeType === "FASTEST") {
-                    document.getElementById('calculateShortest').textContent = `Alternative Route`;
+                    document.getElementById('calculateShortest').textContent = `Shortest Route`;
                     document.getElementById('calculateShortest').disabled = false;
                 }
 
