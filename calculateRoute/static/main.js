@@ -256,6 +256,17 @@ fetch("/static/ports_list.json")
     locodeData = data;
     setupAutocomplete("startISRS_label", "startSuggestions", "startISRS");
     setupAutocomplete("endISRS_label", "endSuggestions", "endISRS");
+    ["startISRS_label", "endISRS_label"].forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+            input.addEventListener("focus", () => {
+                input.value = "";
+                const hidden = document.getElementById(id.replace("_label", ""));
+                if (hidden) hidden.value = ""; // also clear hidden locode
+            });
+        }
+    });
+    
 
   });
 
