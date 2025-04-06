@@ -3,14 +3,14 @@ body {
     font-family: 'Arial', sans-serif;
     margin: 0;
     padding: 20px;
-    background-color: #f4f6f8;
-    color: #333;
+    background-color: #FCFCFC;
+    color: #1F1F1F;
 }
 
 h1 {
     text-align: center;
     margin-bottom: 30px;
-    color: #2c3e50;
+    color: #CD0000;
     font-size: 2.2em;
 }
 
@@ -20,7 +20,7 @@ h1 {
     flex-wrap: wrap;
     gap: 15px;
     justify-content: center;
-    background-color: #fff;
+    background-color: #FCFCFC;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 3px 15px rgba(0,0,0,0.1);
@@ -42,16 +42,18 @@ h1 {
     width: 100%;
     box-sizing: border-box;
     transition: border-color 0.3s ease;
+    background-color: #FCFCFC;
+    color: #1F1F1F;
 }
 
 #routeForm input:focus {
-    border-color: #3498db;
+    border-color: #CD0000;
     outline: none;
 }
 
 #routeForm label {
     font-size: 0.75em;
-    color: #7f8c8d;
+    color: #555;
     margin-top: 5px;
     padding-left: 3px;
     font-weight: 500;
@@ -60,8 +62,8 @@ h1 {
 #calculateBtn {
     width: 100%;
     padding: 12px;
-    background-color: #3498db;
-    color: white;
+    background-color: #CD0000;
+    color: #FCFCFC;
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -73,7 +75,7 @@ h1 {
 }
 
 #calculateBtn:hover {
-    background-color: #2980b9;
+    background-color: #b30000;
     transform: translateY(-1px);
 }
 
@@ -84,7 +86,7 @@ h1 {
     margin-bottom: 25px;
     border: 2px solid #e0e0e0;
     border-radius: 10px;
-    background: white;
+    background: #FCFCFC;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     justify-self: center;
     max-width: 1000px;
@@ -92,7 +94,7 @@ h1 {
 
 /* Itinerary Section */
 #itineraryDetails {
-    background-color: #fff;
+    background-color: #FCFCFC;
     padding: 25px;
     border-radius: 10px;
     box-shadow: 0 3px 15px rgba(0,0,0,0.1);
@@ -103,13 +105,13 @@ h1 {
 
 #itineraryDetails h5 {
     margin: 0 0 18px 0;
-    color: #3498db;
+    color: #CD0000;
     font-size: 1.2em;
     font-weight: 600;
 }
 
 #dimensions {
-    background-color: #f8f9fa;
+    background-color: #f5f5f5;
     padding: 15px;
     border-radius: 6px;
     margin-top: 15px;
@@ -122,8 +124,8 @@ h1 {
     width: 220px;
     padding: 12px;
     margin: 20px auto;
-    background-color: #27ae60;
-    color: white;
+    background-color: #CD0000;
+    color: #FCFCFC;
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -134,12 +136,12 @@ h1 {
 }
 
 #calculateShortest:hover {
-    background-color: #219a52;
+    background-color: #b30000;
     transform: translateY(-1px);
 }
 
 #calculateShortest:disabled {
-    background-color: #95a5a6;
+    background-color: #aaa;
     cursor: not-allowed;
     transform: none;
     display: none;
@@ -151,21 +153,21 @@ h1 {
         padding: 15px;
         gap: 12px;
     }
-    
+
     .form-group {
         width: 100%;
         max-width: 200px;
     }
-    
+
     #calculateBtn {
         margin-top: 10px;
     }
 }
 
 #itineraryDetails {
-    background-color: #fdfdfd;
+    background-color: #FCFCFC;
     border: 1px solid #ddd;
-    border-left: 5px solid #0078d7;
+    border-left: 5px solid #CD0000;
     padding: 20px 24px;
     margin-top: 30px;
     border-radius: 8px;
@@ -176,7 +178,7 @@ h1 {
 
 #itineraryDetails h5 {
     font-size: 18px;
-    color: #333;
+    color: #1F1F1F;
     margin-bottom: 16px;
     margin-top: 24px;
     border-bottom: 1px solid #e0e0e0;
@@ -199,6 +201,7 @@ h1 {
     font-size: 14px;
     color: #555;
 }
+
 /* Container styling */
 .info-container {
     max-width: 700px;
@@ -213,7 +216,7 @@ h1 {
     margin-top: 0;
     font-size: 20px;
     font-weight: 600;
-    color: #1a1a1a;
+    color: #1F1F1F;
     margin-bottom: 20px;
     border-bottom: 1px solid #e0e0e0;
     padding-bottom: 4px;
@@ -235,7 +238,7 @@ h1 {
 }
 
 .value {
-    color: #222;
+    color: #1F1F1F;
     font-weight: 600;
     text-align: right;
     flex: 1;
@@ -246,8 +249,8 @@ h1 {
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: #f44336;
-    color: white;
+    background-color: #CD0000;
+    color: #FCFCFC;
     padding: 16px 28px;
     border-radius: 8px;
     font-size: 16px;
@@ -271,32 +274,32 @@ h1 {
 
 .autocomplete {
     position: relative;
-  }
-  
-  .suggestions {
+}
+
+.suggestions {
     position: absolute;
     top: 100%;
     left: 0;
     right: 0;
     max-height: 180px;
     overflow-y: auto;
-    background: white;
+    background: #FCFCFC;
     border: 1px solid #ccc;
     border-top: none;
     z-index: 10;
     display: none;
     font-size: 14px;
-  }
-  
-  .suggestions div {
+}
+
+.suggestions div {
     padding: 8px 12px;
     cursor: pointer;
-  }
-  
-  .suggestions div:hover {
+}
+
+.suggestions div:hover {
     background-color: #f0f0f0;
-  }
-  
-  .content-wrapper {
+}
+
+.content-wrapper {
     margin: 0 auto;
 }
