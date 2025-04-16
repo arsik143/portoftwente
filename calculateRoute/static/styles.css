@@ -303,3 +303,17 @@ h1 {
 .content-wrapper {
     margin: 0 auto;
 }
+.top-bar {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+.logo {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    height: 50px;
+    z-index: 1000;
+}
+
